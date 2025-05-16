@@ -2,6 +2,7 @@ import asyncio
 from collections.abc import AsyncGenerator, Generator
 
 import pytest
+from app.db.session import get_db
 from app.main import app
 from app.models.base import Base
 from fastapi import FastAPI
@@ -33,6 +34,17 @@ async def test_app() -> FastAPI:
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+    # Override the get_db dependency
+    async def override_get_db():
+        async with TestingSessionLocal() as session:
+            try:
+                yield session
+            finally:
+                await session.rollback()
+                await session.close()
+
+    app.dependency_overrides[get_db] = override_get_db
     return app
 
 
@@ -52,5 +64,5 @@ async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """Create a new FastAPI TestClient that uses the `db_session` fixture to override
     the `get_db` dependency that is injected into routes.
     """
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", follow_redirects=True) as ac:
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test", follow_redirects=True) as ac:
         yield ac
