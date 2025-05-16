@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from app.core.security import get_password_hash
 from app.models.models import User
 from app.schemas.user import UserCreate
 from sqlalchemy import select
@@ -11,7 +12,7 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
     user = User(
         email=user_data.email,
         username=user_data.username,
-        hashed_password=user_data.password,  # Add proper password hashing
+        hashed_password=get_password_hash(user_data.password),
         updated_at=datetime.now(UTC),
     )
     db.add(user)

@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 import pytest
+from app.core.security import get_password_hash
 from app.models import Exercise, Training, TrainingExercise, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +12,7 @@ async def test_create_user(db_session: AsyncSession) -> None:
     user = User(
         email="test@example.com",
         username="testuser",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("testpassword"),
     )
     db_session.add(user)
     await db_session.flush()
@@ -33,7 +34,7 @@ async def test_user_unique_email_constraint(db_session: AsyncSession) -> None:
     user1 = User(
         email="unique@example.com",
         username="uniqueuser1",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("password1"),
     )
     db_session.add(user1)
     await db_session.flush()
@@ -41,7 +42,7 @@ async def test_user_unique_email_constraint(db_session: AsyncSession) -> None:
     user2 = User(
         email="unique@example.com",
         username="uniqueuser2",
-        hashed_password="another_password",
+        hashed_password=get_password_hash("password2"),
     )
     db_session.add(user2)
     with pytest.raises(Exception):
@@ -53,7 +54,7 @@ async def test_user_unique_username_constraint(db_session: AsyncSession) -> None
     user1 = User(
         email="unique2@example.com",
         username="uniqueuser",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("password1"),
     )
     db_session.add(user1)
     await db_session.flush()
@@ -61,7 +62,7 @@ async def test_user_unique_username_constraint(db_session: AsyncSession) -> None
     user2 = User(
         email="another2@example.com",
         username="uniqueuser",
-        hashed_password="another_password",
+        hashed_password=get_password_hash("password2"),
     )
     db_session.add(user2)
     with pytest.raises(Exception):
@@ -99,7 +100,7 @@ async def test_create_training_with_exercises(db_session: AsyncSession) -> None:
     user = User(
         email="training@example.com",
         username="traininguser",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("trainingpassword"),
     )
     db_session.add(user)
     await db_session.flush()

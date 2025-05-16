@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from app.core.security import get_password_hash
 from app.models import User
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +29,7 @@ async def test_get_user(client: AsyncClient, db_session: AsyncSession) -> None:
     user = User(
         email="get_test@example.com",
         username="gettestuser",
-        hashed_password="hashed_password",
+        hashed_password=get_password_hash("testpassword123"),
         updated_at=datetime.now(UTC),
     )
     db_session.add(user)
