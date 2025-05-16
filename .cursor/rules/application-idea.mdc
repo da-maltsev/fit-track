@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+We building wewb app (server app + pwa). Server side works in python with uv package manager. PWA works on bun.
