@@ -11,16 +11,18 @@ makemigrations:
 	PYTHONPATH=$$(pwd) alembic revision --autogenerate -m "$$message"
 
 fmt:
-	ruff check . --fix --unsafe-fixes
-	ruff format .
+	uv run ruff check . --fix --unsafe-fixes
+	uv run ruff format .
+	uv run toml-sort pyproject.toml
 
 lint:
-	ruff check .
-	ruff format --check .
-	mypy .
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy .
+	uv run toml-sort --check pyproject.toml
 
 test:
-	pytest
+	uv run pytest
 
 install-dev-deps:
 	uv sync --locked

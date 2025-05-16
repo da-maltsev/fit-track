@@ -188,6 +188,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "ruff" },
+    { name = "toml-sort" },
     { name = "types-passlib" },
 ]
 
@@ -210,6 +211,7 @@ dev = [
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", specifier = ">=0.23.5" },
     { name = "ruff", specifier = ">=0.3.0" },
+    { name = "toml-sort", specifier = ">=0.24.2" },
     { name = "types-passlib", specifier = ">=1.7.7" },
 ]
 
@@ -556,6 +558,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ce/20/08dfcd9c983f6a6f4a1000d934b9e6d626cff8d2eeb77a89a68eef20a2b7/starlette-0.46.2.tar.gz", hash = "sha256:7f7361f34eed179294600af672f565727419830b54b7b084efe44bb82d2fccd5", size = 2580846, upload-time = "2025-04-13T13:56:17.942Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/0c/9d30a4ebeb6db2b25a841afbb80f6ef9a854fc3b41be131d249a977b4959/starlette-0.46.2-py3-none-any.whl", hash = "sha256:595633ce89f8ffa71a015caed34a5b2dc1c0cdb3f0f1fbd1e69339cf2abeec35", size = 72037, upload-time = "2025-04-13T13:56:16.21Z" },
+]
+
+[[package]]
+name = "toml-sort"
+version = "0.24.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tomlkit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0a/55/b128ee446606e9f2e49582bb1e462a255317401fd7adb0b2114e50006d01/toml_sort-0.24.2.tar.gz", hash = "sha256:20cb7c5e9de9c871990f1594f028aaf8bd0f78d7ce37995a22289dc157a45b79", size = 17973, upload-time = "2024-11-19T14:03:05.092Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/55/7a7c02de848eef670bd018b62122ce32a6e227203e5a626c96d4935958a6/toml_sort-0.24.2-py3-none-any.whl", hash = "sha256:d81d299789a1fd9dd306a4021951eab5fc0c5486599e277fcf8142c7735f3308", size = 20162, upload-time = "2024-11-19T14:03:03.338Z" },
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.13.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/09/a439bec5888f00a54b8b9f05fa94d7f901d6735ef4e55dcec9bc37b5d8fa/tomlkit-0.13.2.tar.gz", hash = "sha256:fff5fe59a87295b278abd31bec92c15d9bc4a06885ab12bcea52c71119392e79", size = 192885, upload-time = "2024-08-14T08:19:41.488Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/b6/a447b5e4ec71e13871be01ba81f5dfc9d0af7e473da256ff46bc0e24026f/tomlkit-0.13.2-py3-none-any.whl", hash = "sha256:7a974427f6e119197f670fbbbeae7bef749a6c14e793db934baefc1b5f03efde", size = 37955, upload-time = "2024-08-14T08:19:40.05Z" },
 ]
 
 [[package]]

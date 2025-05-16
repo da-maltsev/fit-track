@@ -4,23 +4,24 @@ version = "0.1.0"
 description = "Fitness training tracking application"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.110.0",
-    "uvicorn>=0.27.1",
-    "sqlalchemy>=2.0.27",
-    "alembic>=1.13.1",
-    "pydantic[email]>=2.6.1",
-    "pydantic-settings>=2.1.0",
     "aiosqlite>=0.19.0",
+    "alembic>=1.13.1",
+    "fastapi>=0.110.0",
     "passlib[bcrypt]>=1.7.4",
+    "pydantic-settings>=2.1.0",
+    "pydantic[email]>=2.6.1",
+    "sqlalchemy>=2.0.27",
+    "uvicorn>=0.27.1",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.3.0",
-    "mypy>=1.8.0",
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.23.5",
     "httpx>=0.27.0",
+    "mypy>=1.8.0",
+    "pytest-asyncio>=0.23.5",
+    "pytest>=8.0.0",
+    "ruff>=0.3.0",
+    "toml-sort>=0.24.2",
     "types-passlib>=1.7.7",
 ]
 
@@ -113,9 +114,9 @@ lines-after-imports = 2
 "tests/*" = [
     "ANN",  # flake8-annotations
     "ARG001",
+    "B017",
     "PLR2004",
     "PT011",
-    "B017",
     "S106",
 ]
 
@@ -147,3 +148,12 @@ pythonpath = ["."]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[tool.tomlsort]
+in_place = true
+no_sort_tables = true  # preserves the manual order of tables (like [project], [dependency-groups], etc.)
+sort_inline_tables = true
+sort_inline_arrays = true
+spaces_before_inline_comment = 2
+spaces_indent_inline_array = 4
+trailing_comma_inline_array = true

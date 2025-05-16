@@ -42,3 +42,69 @@ async def test_get_user(client: AsyncClient, db_session: AsyncSession) -> None:
     assert data["email"] == "get_test@example.com"
     assert data["username"] == "gettestuser"
     assert data["id"] == user.id
+
+
+async def test_login_success(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Test successful login through the API."""
+    # First create a user
+    user = User(
+        email="login_test@example.com",
+        username="logintestuser",
+        hashed_password=get_password_hash("testpassword123"),
+        updated_at=datetime.now(UTC),
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    # Try to login
+    response = await client.post(
+        "/api/v1/users/login",
+        json={
+            "email": "login_test@example.com",
+            "password": "testpassword123",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["email"] == "login_test@example.com"
+    assert data["username"] == "logintestuser"
+    assert data["id"] == user.id
+
+
+async def test_login_wrong_password(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Test login with wrong password through the API."""
+    # First create a user
+    user = User(
+        email="wrong_pass@example.com",
+        username="wrongpassuser",
+        hashed_password=get_password_hash("testpassword123"),
+        updated_at=datetime.now(UTC),
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    # Try to login with wrong password
+    response = await client.post(
+        "/api/v1/users/login",
+        json={
+            "email": "wrong_pass@example.com",
+            "password": "wrongpassword",
+        },
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Incorrect email or password"
+
+
+async def test_login_nonexistent_user(client: AsyncClient, db_session: AsyncSession) -> None:
+    """Test login with nonexistent user through the API."""
+    response = await client.post(
+        "/api/v1/users/login",
+        json={
+            "email": "nonexistent@example.com",
+            "password": "testpassword123",
+        },
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Incorrect email or password"
