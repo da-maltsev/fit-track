@@ -10,6 +10,7 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.1.0",
     "pydantic[email]>=2.6.1",
+    "pyjwt>=0.27.1",
     "sqlalchemy>=2.0.27",
     "uvicorn>=0.27.1",
 ]
@@ -117,6 +118,7 @@ lines-after-imports = 2
     "B017",
     "PLR2004",
     "PT011",
+    "S105",
     "S106",
 ]
 
