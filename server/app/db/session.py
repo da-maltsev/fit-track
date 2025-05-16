@@ -1,21 +1,24 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from ..core.config import settings
+from collections.abc import AsyncGenerator
+
+from app.core.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
 
 engine = create_async_engine(
     settings.SQLITE_DATABASE_URL,
-    echo=True,
+    echo=False,
 )
 
-AsyncSessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
 
-async def get_db():
+
+async def get_db() -> AsyncGenerator[AsyncSession]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
         finally:
-            await session.close() 
+            await session.close()

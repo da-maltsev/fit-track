@@ -1,6 +1,8 @@
-from sqlalchemy import String, Integer, ForeignKey, DateTime, Float
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import Base
+
+from app.models.base import Base
+
 
 class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -9,6 +11,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String)
     trainings: Mapped[list["Training"]] = relationship("Training", back_populates="user")
 
+
 class Exercise(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, index=True)
@@ -16,12 +19,14 @@ class Exercise(Base):
     muscle_group: Mapped[str] = mapped_column(String, index=True)
     training_exercises: Mapped[list["TrainingExercise"]] = relationship("TrainingExercise", back_populates="exercise")
 
+
 class Training(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
     date: Mapped[DateTime] = mapped_column(DateTime)
     user: Mapped["User"] = relationship("User", back_populates="trainings")
     exercises: Mapped[list["TrainingExercise"]] = relationship("TrainingExercise", back_populates="training")
+
 
 class TrainingExercise(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -31,4 +36,4 @@ class TrainingExercise(Base):
     reps: Mapped[int] = mapped_column(Integer)
     weight: Mapped[float] = mapped_column(Float)
     training: Mapped["Training"] = relationship("Training", back_populates="exercises")
-    exercise: Mapped["Exercise"] = relationship("Exercise", back_populates="training_exercises") 
+    exercise: Mapped["Exercise"] = relationship("Exercise", back_populates="training_exercises")

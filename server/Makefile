@@ -4,11 +4,11 @@ server:
 	uvicorn app.main:app --reload
 
 migrate:
-	alembic upgrade head
+	PYTHONPATH=$$(pwd) alembic upgrade head
 
 makemigrations:
 	@read -p "Enter migration message: " message; \
-	alembic revision --autogenerate -m "$$message"
+	PYTHONPATH=$$(pwd) alembic revision --autogenerate -m "$$message"
 
 fmt:
 	ruff check . --fix --unsafe-fixes

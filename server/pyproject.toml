@@ -13,7 +13,7 @@ dependencies = [
     "aiosqlite>=0.19.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ruff>=0.3.0",
     "mypy>=1.8.0",
@@ -23,27 +23,117 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 88
-target-version = "py313"
-select = ["E", "F", "B", "I", "N", "UP", "PL", "RUF"]
-ignore = []
+exclude = ["__pycache__", "migrations"]
+line-length = 160
+src = ["src"]
 
-[tool.ruff.isort]
-known-first-party = ["app"]
+[tool.ruff.lint]
+ignore = [
+    "A001",  # variable `{}` is shadowing a Python builtin
+    "A002",  # argument `{}` is shadowing a Python builtin
+    "A003",  # class attribute `{}` is shadowing a Python builtin
+    "ANN401",  # dynamically typed expressions (typing.Any) are disallowed in `{}`
+    "ARG002",  # unused method argument: `{}`
+    "ARG005",  # unused lambda argument: `{}`
+    "B018",  # found useless expression. Either assign it to a variable or remove it
+    "B904",  # within an `except` clause, raise exceptions with [...]
+    "C408",  # unnecessary `dict` call (rewrite as a literal)
+    "COM812",  # trailing comma missing; may not be compatible with ruff formatter
+    "D100",  # missing docstring in public module
+    "D101",  # missing docstring in public class
+    "D102",  # missing docstring in public method
+    "D103",  # missing docstring in public function
+    "D104",  # missing docstring in public package
+    "D105",  # missing docstring in magic method
+    "D106",  # missing docstring in public nested class
+    "D107",  # missing docstring in `__init__`
+    "D200",  # one-line docstring should fit on one line
+    "D202",  # no blank lines allowed after function docstring (found {})
+    "D203",  # 1 blank line required before class docstring
+    "D205",  # 1 blank line required between summary line and description
+    "D209",  # multi-line docstring closing quotes should be on a separate line
+    "D210",  # no whitespaces allowed surrounding docstring text
+    "D212",  # multi-line docstring summary should start at the first line
+    "D213",  # multi-line docstring summary should start at the second line
+    "D400",  # first line should end with a period
+    "D401",  # first line of docstring should be in imperative mood: "{}"
+    "D404",  # first word of the docstring should not be "This"
+    "D415",  # first line should end with a period, question mark, or exclamation point
+    "DTZ001",  # the use of `datetime.datetime()` without `tzinfo` argument is not allowed
+    "E501",  # line too long ({} > {})
+    "EM101",  # exception must not use a string literal, assign to variable first
+    "EM102",  # exception must not use an f-string literal, assign to variable first
+    "FBT001",  # boolean-typed position argument in function definition
+    "FBT002",  # boolean default position argument in function definition
+    "FBT003",  # boolean positional value in function call
+    "INP001",  # file `{}` is part of an implicit namespace package. Add an `__init__.py`
+    "INT001",  # f-string is resolved before function call; consider `_("string %s") % arg`
+    "ISC001",  # implicitly concatenated string literals on one line; may not be compatible with ruff formatter
+    "N802",  # function name `{}` should be lowercase
+    "N803",  # argument name `{}` should be lowercase
+    "N804",  # first argument of a class method should be named `cls`
+    "N806",  # variable `{}` in function should be lowercase
+    "N812",  # lowercase `{}` imported as non-lowercase `{}`
+    "N818",  # exception name `{}` should be named with an Error suffix
+    "N999",  # invalid module name: '{}'
+    "PERF401",  # use a list comprehension to create a transformed list
+    "RET501",  # do not explicitly `return None` in function if it is the only possible return value
+    "RET502",  # do not implicitly `return None` in function able to return non-`None` value
+    "RET503",  # missing explicit `return` at the end of function able to return non-`None` value
+    "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF015",  # prefer next({iterable}) over single element slice
+    "S101",  # use of `assert` detected
+    "S311",  # standard pseudo-random generators are not suitable for cryptographic purposes
+    "S324",  # probable use of insecure hash functions in `{}`: `{}`
+    "SIM102",  # use a single `if` statement instead of nested `if` statements
+    "SIM108",  # use ternary operator `{}` instead of `if`-`else`-block
+    "SIM113",  # use enumerate instead of manually incrementing a counter
+    "TC001",  # move application import `{}` into a type-checking block
+    "TC002",  # move third-party import `{}` into a type-checking block
+    "TC003",  # move standard library import `{}` into a type-checking block
+    "TRY003",  # avoid specifying long messages outside the exception class
+    "TRY300",  # consider moving this statement to an `else` block
+]
+select = ["ALL"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["src"]
+lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/*" = [
+    "ANN",  # flake8-annotations
+]
+"tests/*" = [
+    "ANN",  # flake8-annotations
+    "ARG001",
+    "PLR2004",
+    "PT011",
+    "B017",
+    "S106",
+]
 
 [tool.mypy]
 python_version = "3.13"
-warn_return_any = true
+mypy_path = "."
+files = "."
+namespace_packages = true
+explicit_package_bases = true
+warn_no_return = false
 warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
 warn_unused_ignores = true
-warn_no_return = true
+warn_redundant_casts = true
+no_implicit_optional = true
+no_implicit_reexport = true
+strict_equality = true
 warn_unreachable = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+exclude = "alembic/"
 
 [[tool.mypy.overrides]]
 module = ["tests.*"]
@@ -51,6 +141,7 @@ disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
 [tool.pytest.ini_options]
+pythonpath = ["."]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = ["test_*.py"]

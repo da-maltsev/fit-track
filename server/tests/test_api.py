@@ -1,32 +1,35 @@
-import pytest
+from datetime import UTC, datetime
+
+from app.models import User
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
 
-@pytest.mark.asyncio
-async def test_create_user(client: AsyncClient, db_session: AsyncSession):
+async def test_create_user(client: AsyncClient, db_session: AsyncSession) -> None:
     """Test creating a user through the API."""
     response = await client.post(
         "/api/v1/users/",
         json={
             "email": "api_test@example.com",
+            "username": "apitestuser",
             "password": "testpassword123",
         },
     )
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "api_test@example.com"
+    assert data["username"] == "apitestuser"
     assert "id" in data
 
-@pytest.mark.asyncio
-async def test_get_user(client: AsyncClient, db_session: AsyncSession):
+
+async def test_get_user(client: AsyncClient, db_session: AsyncSession) -> None:
     """Test getting a user through the API."""
     # First create a user
     user = User(
         email="get_test@example.com",
+        username="gettestuser",
         hashed_password="hashed_password",
-        is_active=True,
+        updated_at=datetime.now(UTC),
     )
     db_session.add(user)
     await db_session.commit()
@@ -36,4 +39,5 @@ async def test_get_user(client: AsyncClient, db_session: AsyncSession):
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "get_test@example.com"
-    assert data["id"] == user.id 
+    assert data["username"] == "gettestuser"
+    assert data["id"] == user.id
