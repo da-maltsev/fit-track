@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.models.models import Exercise, MuscleGroup
 from app.schemas.exercise import ExerciseDetail, ExerciseList, ExerciseSearchParams
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/{exercise_id}", response_model=ExerciseDetail)

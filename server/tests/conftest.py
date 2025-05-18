@@ -1,11 +1,13 @@
 import asyncio
 from collections.abc import AsyncGenerator, Generator
+from datetime import UTC, datetime
 
 import pytest
+from app.core.security import create_access_token, get_password_hash
 from app.db.session import get_db
 from app.main import app
 from app.models.base import Base
-from app.models.models import Exercise, MuscleGroup
+from app.models.models import Exercise, MuscleGroup, User
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -97,3 +99,32 @@ async def exercise(db_session: AsyncSession, muscle_group: MuscleGroup) -> Exerc
     await db_session.commit()
     await db_session.refresh(exercise)
     return exercise
+
+
+@pytest.fixture
+async def user(db_session: AsyncSession) -> User:
+    """Create a test user."""
+    user = User(
+        email="test@example.com",
+        username="testuser",
+        hashed_password=get_password_hash("testpassword123"),
+        updated_at=datetime.now(UTC),
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+async def as_anon(client: AsyncClient) -> AsyncClient:
+    """Return a client without authentication headers."""
+    return client
+
+
+@pytest.fixture
+async def as_user(client: AsyncClient, user: User) -> AsyncClient:
+    """Return a client with authentication headers for the test user."""
+    token = create_access_token(subject=user.id)
+    client.headers["Authorization"] = f"Bearer {token}"
+    return client
