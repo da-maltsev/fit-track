@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.fixture
-async def training_data():
+async def training_data(exercise):
     return {
         "date": datetime.now(UTC).isoformat(),
-        "exercises": [{"exercise_id": 1, "sets": 3, "reps": 10, "weight": 50.0}, {"exercise_id": 2, "sets": 4, "reps": 12, "weight": 30.0}],
+        "exercises": [{"exercise_id": exercise.id, "sets": 3, "reps": 10, "weight": 50.0}, {"exercise_id": exercise.id, "sets": 4, "reps": 12, "weight": 30.0}],
     }
 
 

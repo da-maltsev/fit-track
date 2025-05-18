@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from httpx import AsyncClient
 
 
-async def test_update_training(as_user: AsyncClient, training, exercise):
+async def test_update_training(as_user: AsyncClient, training, exercise, muscle_group):
     """Test updating a training."""
     update_data = {"date": datetime.now(UTC).isoformat(), "exercises": [{"exercise_id": exercise.id, "sets": 4, "reps": 12, "weight": 60.0}]}
 
@@ -15,6 +15,8 @@ async def test_update_training(as_user: AsyncClient, training, exercise):
     assert data["exercises"][0]["reps"] == 12
     assert data["exercises"][0]["weight"] == 60.0
     assert data["exercises"][0]["sets"] == 4
+    assert data["exercises"][0]["exercise"]["name"] == exercise.name
+    assert data["exercises"][0]["exercise"]["muscle_group"] == muscle_group.name
 
 
 async def test_update_training_not_found(as_user: AsyncClient, training_data):

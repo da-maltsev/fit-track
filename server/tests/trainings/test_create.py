@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 
-async def test_create_training(as_user: AsyncClient, training_data, exercise):
+async def test_create_training(as_user: AsyncClient, training_data, exercise, muscle_group):
     """Test creating a new training."""
     # Update exercise_id to match the test exercise
     training_data["exercises"][0]["exercise_id"] = exercise.id
@@ -15,6 +15,8 @@ async def test_create_training(as_user: AsyncClient, training_data, exercise):
     assert data["exercises"][0]["sets"] == 3
     assert data["exercises"][0]["reps"] == 10
     assert data["exercises"][0]["weight"] == 50.0
+    assert data["exercises"][0]["exercise"]["name"] == exercise.name
+    assert data["exercises"][0]["exercise"]["muscle_group"] == muscle_group.name
 
 
 async def test_create_training_unauthorized(as_anon: AsyncClient, training_data):

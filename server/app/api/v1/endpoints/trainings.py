@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from app.api.deps import get_current_user, get_db
-from app.models.models import Training, TrainingExercise, User
+from app.models.models import Exercise, Training, TrainingExercise, User
 from app.schemas.training import TrainingCreate, TrainingRead, TrainingUpdate
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, select
@@ -39,10 +39,15 @@ async def create_training(
     await db.refresh(db_training)
 
     # Reload training with relationships
-    query = select(Training).options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise)).where(Training.id == db_training.id)
+    query = (
+        select(Training)
+        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
+        .where(Training.id == db_training.id)
+    )
     result = await db.execute(query)
     db_training = result.scalar_one()
-    return TrainingRead.model_validate(db_training)
+    # Manual conversion for nested models
+    return TrainingRead.from_orm(db_training)
 
 
 @router.get("/")
@@ -50,10 +55,15 @@ async def read_trainings(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> list[TrainingRead]:
-    query = select(Training).options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise)).filter(Training.user_id == current_user.id)
+    query = (
+        select(Training)
+        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
+        .filter(Training.user_id == current_user.id)
+    )
     result = await db.execute(query)
     trainings = result.scalars().all()
-    return [TrainingRead.model_validate(training) for training in trainings]
+    # Manual conversion for nested models
+    return [TrainingRead.from_orm(training) for training in trainings]
 
 
 @router.get("/{training_id}")
@@ -64,7 +74,7 @@ async def read_training(
 ) -> TrainingRead:
     query = (
         select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise))
+        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
         .filter(
             Training.id == training_id,
             Training.user_id == current_user.id,
@@ -74,7 +84,8 @@ async def read_training(
     training = result.scalar_one_or_none()
     if not training:
         raise HTTPException(status_code=404, detail="Training not found")
-    return TrainingRead.model_validate(training)
+    # Manual conversion for nested models
+    return TrainingRead.from_orm(training)
 
 
 @router.put("/{training_id}")
@@ -86,7 +97,7 @@ async def update_training(
 ) -> TrainingRead:
     query = (
         select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise))
+        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
         .filter(
             Training.id == training_id,
             Training.user_id == current_user.id,
@@ -118,10 +129,15 @@ async def update_training(
     await db.refresh(db_training)
 
     # Reload training with relationships
-    query = select(Training).options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise)).where(Training.id == db_training.id)
+    query = (
+        select(Training)
+        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
+        .where(Training.id == db_training.id)
+    )
     result = await db.execute(query)
     db_training = result.scalar_one()
-    return TrainingRead.model_validate(db_training)
+    # Manual conversion for nested models
+    return TrainingRead.from_orm(db_training)
 
 
 @router.delete("/{training_id}")

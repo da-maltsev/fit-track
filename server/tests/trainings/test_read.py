@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
 
-async def test_get_trainings(as_user: AsyncClient, training):
+async def test_get_trainings(as_user: AsyncClient, training, exercise, muscle_group):
     """Test getting all trainings for the current user."""
     response = await as_user.get("/api/v1/trainings/")
     assert response.status_code == 200
@@ -9,9 +9,11 @@ async def test_get_trainings(as_user: AsyncClient, training):
     assert len(data) == 1
     assert data[0]["id"] == training.id
     assert len(data[0]["exercises"]) == 1
+    assert data[0]["exercises"][0]["exercise"]["name"] == exercise.name
+    assert data[0]["exercises"][0]["exercise"]["muscle_group"] == muscle_group.name
 
 
-async def test_get_training(as_user: AsyncClient, training, training_data):
+async def test_get_training(as_user: AsyncClient, training, training_data, exercise, muscle_group):
     """Test getting a specific training."""
     response = await as_user.get(f"/api/v1/trainings/{training.id}")
     assert response.status_code == 200
@@ -19,6 +21,8 @@ async def test_get_training(as_user: AsyncClient, training, training_data):
     assert data["id"] == training.id
     assert len(data["exercises"]) == 1
     assert data["exercises"][0]["exercise_id"] == training_data["exercises"][0]["exercise_id"]
+    assert data["exercises"][0]["exercise"]["name"] == exercise.name
+    assert data["exercises"][0]["exercise"]["muscle_group"] == muscle_group.name
 
 
 async def test_get_training_not_found(as_user: AsyncClient):
