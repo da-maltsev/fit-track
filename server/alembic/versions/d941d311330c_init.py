@@ -1,8 +1,8 @@
 """init
 
-Revision ID: e232f17611fc
+Revision ID: d941d311330c
 Revises:
-Create Date: 2025-05-18 12:33:35.909795
+Create Date: 2025-05-18 13:10:26.363930
 
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision: str = "e232f17611fc"
+revision: str = "d941d311330c"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

@@ -37,7 +37,7 @@ class Training(Base):
     date: Mapped[DateTime] = mapped_column(DateTime(timezone=True), index=True)
 
     user: Mapped["User"] = relationship("User", back_populates="trainings")
-    exercises: Mapped[list["TrainingExercise"]] = relationship("TrainingExercise", back_populates="training")
+    exercises: Mapped[list["TrainingExercise"]] = relationship("TrainingExercise", back_populates="training", cascade="all, delete-orphan")
 
 
 class TrainingExercise(Base):

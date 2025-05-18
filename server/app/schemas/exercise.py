@@ -1,14 +1,14 @@
-from app.schemas.base import NoWhitespaceString
+from app.schemas.base import NoWhitespaceString, PositiveInt
 from pydantic import BaseModel
 
 
 class MuscleGroupBase(BaseModel):
-    id: int
+    id: PositiveInt
     name: NoWhitespaceString
 
 
 class ExerciseBase(BaseModel):
-    id: int
+    id: PositiveInt
     name: NoWhitespaceString
     description: NoWhitespaceString
     aliases: list[NoWhitespaceString]
