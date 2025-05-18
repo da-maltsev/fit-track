@@ -1,13 +1,14 @@
+from app.schemas.base import NoWhitespaceString
 from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    username: str
+    username: NoWhitespaceString
 
 
 class UserCreate(UserBase):
-    password: str
+    password: NoWhitespaceString
 
 
 class UserResponse(UserBase):
@@ -19,4 +20,4 @@ class UserResponse(UserBase):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: NoWhitespaceString

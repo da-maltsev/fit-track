@@ -1,16 +1,17 @@
+from app.schemas.base import NoWhitespaceString
 from pydantic import BaseModel
 
 
 class MuscleGroupBase(BaseModel):
     id: int
-    name: str
+    name: NoWhitespaceString
 
 
 class ExerciseBase(BaseModel):
     id: int
-    name: str
-    description: str
-    aliases: list[str]
+    name: NoWhitespaceString
+    description: NoWhitespaceString
+    aliases: list[NoWhitespaceString]
     muscle_group: MuscleGroupBase
 
 
@@ -23,5 +24,5 @@ class ExerciseList(ExerciseBase):
 
 
 class ExerciseSearchParams(BaseModel):
-    search: str | None = None
-    muscle_group: str | None = None
+    search: NoWhitespaceString | None = None
+    muscle_group: NoWhitespaceString | None = None

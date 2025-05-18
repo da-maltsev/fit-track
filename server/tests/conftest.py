@@ -56,7 +56,12 @@ async def db_session() -> AsyncGenerator[AsyncSession]:
         try:
             yield session
         finally:
+            # Rollback any pending changes
             await session.rollback()
+            # Delete all data from all tables
+            for table in reversed(Base.metadata.sorted_tables):
+                await session.execute(table.delete())
+            await session.commit()
             await session.close()
 
 

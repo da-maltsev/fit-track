@@ -4,7 +4,7 @@ from app.api.deps import get_db
 from app.models.models import Exercise, MuscleGroup
 from app.schemas.exercise import ExerciseDetail, ExerciseList, ExerciseSearchParams
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import bindparam, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -36,7 +36,12 @@ async def list_exercises(
 
     if search_params.search:
         search_term = f"%{search_params.search}%"
-        query = query.where((Exercise.name.ilike(search_term)) | (Exercise.aliases.cast(str).ilike(search_term)))
+        # Search in name and aliases using JSON array contains
+        json_search = text("EXISTS (SELECT 1 FROM json_each(exercise.aliases) WHERE json_each.value LIKE :search_term)").bindparams(
+            bindparam("search_term", search_term)
+        )
+
+        query = query.where(or_(Exercise.name.ilike(search_term), json_search))
 
     if search_params.muscle_group:
         query = query.join(MuscleGroup).where(MuscleGroup.name.ilike(f"%{search_params.muscle_group}%"))
