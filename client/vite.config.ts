@@ -5,6 +5,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	define: {
+		'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'VITE_API_URL_PLACEHOLDER')
+	},
 	test: {
 		workspace: [
 			{
