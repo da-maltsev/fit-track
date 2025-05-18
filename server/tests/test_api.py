@@ -1,3 +1,4 @@
+import pytest
 from app.models import User
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,12 +31,13 @@ async def test_get_user(as_anon: AsyncClient, db_session: AsyncSession, user: Us
     assert data["id"] == user.id
 
 
-async def test_login_success(as_anon: AsyncClient, db_session: AsyncSession, user: User) -> None:
+@pytest.mark.parametrize("field_name", ["username", "email"])
+async def test_login_success(as_anon: AsyncClient, db_session: AsyncSession, user: User, field_name: str) -> None:
     """Test successful login through the API."""
     response = await as_anon.post(
         "/api/v1/users/login",
         json={
-            "email": user.email,
+            "username": getattr(user, field_name),
             "password": "testpassword123",
         },
     )
@@ -50,7 +52,7 @@ async def test_login_wrong_password(as_anon: AsyncClient, db_session: AsyncSessi
     response = await as_anon.post(
         "/api/v1/users/login",
         json={
-            "email": user.email,
+            "username": user.username,
             "password": "wrongpassword",
         },
     )
@@ -63,7 +65,7 @@ async def test_login_nonexistent_user(as_anon: AsyncClient, db_session: AsyncSes
     response = await as_anon.post(
         "/api/v1/users/login",
         json={
-            "email": "nonexistent@example.com",
+            "username": "nonexistent@example.com",
             "password": "testpassword123",
         },
     )

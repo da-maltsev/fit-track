@@ -19,5 +19,5 @@ class UserResponse(UserBase):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: EmailStr | NoWhitespaceString
     password: NoWhitespaceString

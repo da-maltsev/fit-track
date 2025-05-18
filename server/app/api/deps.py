@@ -1,20 +1,37 @@
-from typing import Annotated
+from typing import Annotated, TypeVar
 
 from app.core.security import verify_token
 from app.db.session import get_db
 from app.models.models import User
 from app.services import user as user_service
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-__all__ = ["get_current_user", "get_db"]
+__all__ = ["form_or_json", "get_current_user", "get_db"]
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/users/login",
     auto_error=False,
 )
+
+_TModel = TypeVar("_TModel", bound=BaseModel)
+
+
+def form_or_json(model: type[_TModel]) -> _TModel:
+    async def form_or_json_inner(request: Request) -> _TModel:
+        type_ = request.headers["Content-Type"].split(";", 1)[0]
+        if type_ == "application/json":
+            data = await request.json()
+        elif type_ == "application/x-www-form-urlencoded":
+            data = await request.form()
+        else:
+            raise HTTPException(400)
+        return model.model_validate(data)
+
+    return Depends(form_or_json_inner)
 
 
 async def get_current_user(

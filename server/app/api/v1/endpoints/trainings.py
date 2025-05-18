@@ -70,7 +70,7 @@ async def read_training(
             Training.user_id == current_user.id,
         )
     )
-    result = await db.execute(query)
+    result = await db.execute(query.order_by(Training.date.desc()))
     training = result.scalar_one_or_none()
     if not training:
         raise HTTPException(status_code=404, detail="Training not found")

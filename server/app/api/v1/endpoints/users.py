@@ -1,8 +1,7 @@
 from typing import Annotated
 
-from app.api.deps import get_current_user
+from app.api.deps import form_or_json, get_current_user, get_db
 from app.core.security import create_access_token
-from app.db.session import get_db
 from app.models.models import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate, UserLogin, UserResponse
@@ -46,11 +45,11 @@ async def get_user(
 
 @router.post("/login")
 async def login(
-    user_data: UserLogin,
     db: Annotated[AsyncSession, Depends(get_db)],
+    user_data: UserLogin = form_or_json(UserLogin),  # noqa: B008
 ) -> Token:
-    """Login a user."""
-    user = await user_service.authenticate_user(db, user_data.email, user_data.password)
+    """Login a user with JSON data."""
+    user = await user_service.authenticate_user(db, user_data.username, user_data.password)
     if not user:
         raise HTTPException(
             status_code=401,
