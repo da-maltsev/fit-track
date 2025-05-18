@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 from app.core.security import get_password_hash
-from app.models import Exercise, Training, TrainingExercise, User
+from app.models import Exercise, MuscleGroup, Training, TrainingExercise, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -72,10 +72,15 @@ async def test_user_unique_username_constraint(db_session: AsyncSession) -> None
 
 async def test_create_exercise(db_session: AsyncSession) -> None:
     """Test creating an exercise."""
+    muscle_group = MuscleGroup(name="Chest")
+    db_session.add(muscle_group)
+    await db_session.flush()
+    await db_session.refresh(muscle_group)
+
     exercise = Exercise(
         name="Bench Press",
         description="Classic chest exercise",
-        muscle_group="Chest",
+        muscle_group=muscle_group,
     )
     db_session.add(exercise)
     await db_session.flush()
@@ -88,7 +93,7 @@ async def test_create_exercise(db_session: AsyncSession) -> None:
     assert exercise.id is not None
     assert exercise.name == "Bench Press"
     assert exercise.description == "Classic chest exercise"
-    assert exercise.muscle_group == "Chest"
+    assert exercise.muscle_group_id == muscle_group.id
     assert len(training_exercises) == 0
     assert exercise.created_at is not None
     assert exercise.updated_at is not None
@@ -106,11 +111,17 @@ async def test_create_training_with_exercises(db_session: AsyncSession) -> None:
     await db_session.flush()
     await db_session.refresh(user)
 
+    # Create muscle group first
+    muscle_group = MuscleGroup(name="Legs")
+    db_session.add(muscle_group)
+    await db_session.flush()
+    await db_session.refresh(muscle_group)
+
     # Create exercise
     exercise = Exercise(
         name="Squat",
         description="Leg exercise",
-        muscle_group="Legs",
+        muscle_group=muscle_group,
     )
     db_session.add(exercise)
     await db_session.flush()

@@ -87,6 +87,7 @@ ignore = [
     "RET501",  # do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # do not implicitly `return None` in function able to return non-`None` value
     "RET503",  # missing explicit `return` at the end of function able to return non-`None` value
+    "RUF001",
     "RUF012",  # mutable class attributes should be annotated with `typing.ClassVar`
     "RUF015",  # prefer next({iterable}) over single element slice
     "S101",  # use of `assert` detected
