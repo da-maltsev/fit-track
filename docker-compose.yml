@@ -8,18 +8,19 @@ services:
       args:
         - BUILD_ENV=${BUILD_ENV:-development}
     ports:
-      - "8000:8000"
+      - "7000:8000"
     volumes:
       - ./server/fitness.db:/app/fitness.db
     environment:
       - PYTHONPATH=/app
+      - SECRET_KEY=${SECRET_KEY}
 
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:7000}
     ports:
       - "3000:3000"
     depends_on:
