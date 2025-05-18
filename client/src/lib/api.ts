@@ -8,8 +8,7 @@ import type {
     TrainingRead,
     TrainingUpdate
 } from './types';
-
-const API_BASE = '/api/v1';
+import { config } from './config';
 
 class ApiClient {
     private token: string | null = null;
@@ -28,7 +27,7 @@ class ApiClient {
             ...options.headers
         };
 
-        const response = await fetch(`${API_BASE}${endpoint}`, {
+        const response = await fetch(`${config.apiUrl}/api/v1${endpoint}`, {
             ...options,
             headers
         });
