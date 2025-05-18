@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -17,6 +17,7 @@ class Exercise(Base):
     name: Mapped[str] = mapped_column(String, index=True)
     description: Mapped[str] = mapped_column(String)
     muscle_group: Mapped[str] = mapped_column(String, index=True)
+    aliases: Mapped[list[str]] = mapped_column(JSON, default=list, index=True)
     training_exercises: Mapped[list["TrainingExercise"]] = relationship("TrainingExercise", back_populates="exercise")
 
 
