@@ -1,12 +1,11 @@
 from typing import Annotated
 
 from app.api.deps import get_current_user, get_db
-from app.models.models import Exercise, Training, TrainingExercise, User
+from app.models.models import User
 from app.schemas.training import TrainingCreate, TrainingRead, TrainingUpdate
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import delete, select
+from app.services.training_service import TrainingService
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 
 router = APIRouter()
@@ -18,35 +17,9 @@ async def create_training(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> TrainingRead:
-    db_training = Training(
-        user_id=current_user.id,
-        date=training.date,
-    )
-    db.add(db_training)
-    await db.flush()
-
-    for exercise in training.exercises:
-        db_exercise = TrainingExercise(
-            training_id=db_training.id,
-            exercise_id=exercise.exercise_id,
-            sets=exercise.sets,
-            reps=exercise.reps,
-            weight=exercise.weight,
-        )
-        db.add(db_exercise)
-
-    await db.commit()
-    await db.refresh(db_training)
-
-    # Reload training with relationships
-    query = (
-        select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
-        .where(Training.id == db_training.id)
-    )
-    result = await db.execute(query)
-    db_training = result.scalar_one()
-    # Manual conversion for nested models
+    service = TrainingService(db)
+    db_training = await service.create_training(training, current_user.id)
+    db_training = await service.get_training_by_id(db_training.id, current_user.id)
     return TrainingRead.from_orm(db_training)
 
 
@@ -55,14 +28,8 @@ async def read_trainings(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> list[TrainingRead]:
-    query = (
-        select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
-        .filter(Training.user_id == current_user.id)
-    )
-    result = await db.execute(query)
-    trainings = result.scalars().all()
-    # Manual conversion for nested models
+    service = TrainingService(db)
+    trainings = await service.get_user_trainings(current_user.id)
     return [TrainingRead.from_orm(training) for training in trainings]
 
 
@@ -72,19 +39,8 @@ async def read_training(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> TrainingRead:
-    query = (
-        select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
-        .filter(
-            Training.id == training_id,
-            Training.user_id == current_user.id,
-        )
-    )
-    result = await db.execute(query.order_by(Training.date.desc()))
-    training = result.scalar_one_or_none()
-    if not training:
-        raise HTTPException(status_code=404, detail="Training not found")
-    # Manual conversion for nested models
+    service = TrainingService(db)
+    training = await service.get_training_by_id(training_id, current_user.id)
     return TrainingRead.from_orm(training)
 
 
@@ -95,48 +51,9 @@ async def update_training(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> TrainingRead:
-    query = (
-        select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
-        .filter(
-            Training.id == training_id,
-            Training.user_id == current_user.id,
-        )
-    )
-    result = await db.execute(query)
-    db_training = result.scalar_one_or_none()
-    if not db_training:
-        raise HTTPException(status_code=404, detail="Training not found")
-
-    db_training.date = training.date  # type: ignore[assignment]
-
-    # Delete existing exercises
-    delete_query = delete(TrainingExercise).filter(TrainingExercise.training_id == training_id)
-    await db.execute(delete_query)
-
-    # Add new exercises
-    for exercise in training.exercises:
-        db_exercise = TrainingExercise(
-            training_id=db_training.id,
-            exercise_id=exercise.exercise_id,
-            sets=exercise.sets,
-            reps=exercise.reps,
-            weight=exercise.weight,
-        )
-        db.add(db_exercise)
-
-    await db.commit()
-    await db.refresh(db_training)
-
-    # Reload training with relationships
-    query = (
-        select(Training)
-        .options(selectinload(Training.exercises).selectinload(TrainingExercise.exercise).selectinload(Exercise.muscle_group))
-        .where(Training.id == db_training.id)
-    )
-    result = await db.execute(query)
-    db_training = result.scalar_one()
-    # Manual conversion for nested models
+    service = TrainingService(db)
+    await service.update_training(training_id, current_user.id, training)
+    db_training = await service.get_training_by_id(training_id, current_user.id)
     return TrainingRead.from_orm(db_training)
 
 
@@ -146,15 +63,6 @@ async def delete_training(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> dict:
-    query = select(Training).filter(
-        Training.id == training_id,
-        Training.user_id == current_user.id,
-    )
-    result = await db.execute(query)
-    training = result.scalar_one_or_none()
-    if not training:
-        raise HTTPException(status_code=404, detail="Training not found")
-
-    await db.delete(training)
-    await db.commit()
+    service = TrainingService(db)
+    await service.delete_training(training_id, current_user.id)
     return {"message": "Training deleted successfully"}
