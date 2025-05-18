@@ -5,6 +5,7 @@ import pytest
 from app.db.session import get_db
 from app.main import app
 from app.models.base import Base
+from app.models.models import Exercise, MuscleGroup
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -66,3 +67,28 @@ async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test", follow_redirects=True) as ac:
         yield ac
+
+
+@pytest.fixture
+async def muscle_group(db_session: AsyncSession) -> MuscleGroup:
+    """Create a test muscle group."""
+    muscle_group = MuscleGroup(name="Test Muscle Group")
+    db_session.add(muscle_group)
+    await db_session.commit()
+    await db_session.refresh(muscle_group)
+    return muscle_group
+
+
+@pytest.fixture
+async def exercise(db_session: AsyncSession, muscle_group: MuscleGroup) -> Exercise:
+    """Create a test exercise."""
+    exercise = Exercise(
+        name="Test Exercise",
+        description="Test exercise description",
+        muscle_group=muscle_group,
+        aliases=["test alias", "another alias"],
+    )
+    db_session.add(exercise)
+    await db_session.commit()
+    await db_session.refresh(exercise)
+    return exercise

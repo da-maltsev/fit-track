@@ -9,6 +9,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+__all__ = ["get_current_user", "get_db"]
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/users/login",
     auto_error=False,
